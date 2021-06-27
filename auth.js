@@ -18,7 +18,7 @@ module.exports = function (app, myDatabase) {
     passport.use(new GitHubStrategy({
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: 'https://replit.com/@rsheppard/auth/github/callback'
+        callbackURL: 'https://replit.com/@rsheppard/advancednode/auth/github/callback'
     }, (accessToken, refreshToken, profile, cb) => {
         console.log(profile)
         myDatabase.findOneAndUpdate({ id: profile.id }, {
