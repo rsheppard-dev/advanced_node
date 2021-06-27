@@ -48,7 +48,7 @@ myDB(async client => {
   app.route('/')
     .get((req, res) => {
       res.render('pug', {
-        title: 'Connected to Database',
+        title: 'Home Page',
         message: 'Please login',
         showLogin: true,
         showRegistration: true
@@ -76,7 +76,7 @@ myDB(async client => {
           })
         }
       })
-    }, passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
+    }, passport.authenticate('local', { failureRedirect: '/' }), (req, res, next) => {
       res.redirect('/profile')
     })
 
@@ -89,6 +89,7 @@ myDB(async client => {
 
   app.route('/profile').get(ensureAuthenticated, (req, res) => {
     res.render(process.cwd() + '/views/pug/profile', {
+      title: 'Profile Page',
       username: req.user.username
     })
   })
@@ -111,7 +112,7 @@ myDB(async client => {
 
   passport.deserializeUser((id, done) => {
     myDatabase.findOne({ _id: new ObjectID(id) }, (err, doc) => {
-      done(null, doc)
+      done(null, user)
     })
   })
 
