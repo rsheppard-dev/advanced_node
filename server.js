@@ -50,8 +50,34 @@ myDB(async client => {
       res.render('pug', {
         title: 'Connected to Database',
         message: 'Please login',
-        showLogin: true
+        showLogin: true,
+        showRegistration: true
       })
+    })
+
+  app.route('/register')
+    .post((req, res, next) => {
+      const { username, password } = req.body
+      myDatabase.findOne({ username }, (error, user) => {
+        if (error) {
+          next(error)
+        } else if (user) {
+          res.redirect('/')
+        } else {
+          myDatabase.insertOne({
+            username,
+            password
+          }, (error, doc) => {
+            if (error) {
+              res.redirect('/')
+            } else {
+              next(null, doc.ops[0])
+            }
+          })
+        }
+      })
+    }, passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
+      res.redirect('/profile')
     })
 
   app.route('/login')
