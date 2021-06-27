@@ -44,8 +44,9 @@ io.use(passportSocketIo.authorize({
 myDB(async client => {
   const myDatabase = await client.db('database').collection('users')
 
-  auth(app, myDatabase)
   routes(app, myDatabase)
+  auth(app, myDatabase)
+
   let currentUsers = 0
   io.on('connection', socket => {
     console.log(`user ${socket.request.user.name} connected`)
@@ -67,13 +68,13 @@ myDB(async client => {
   })
 })
 
-const onAuthorizeSuccess = (data, accept) => {
+function onAuthorizeSuccess(data, accept) {
   console.log('successful connection to socket.io')
 
   accept(null, true)
 }
 
-const onAuthorizeFail = (data, message, error, accept) => {
+function onAuthorizeFail(data, message, error, accept) {
   if (error) throw new Error(message)
 
   console.log('failed connection to socket.io', message)
