@@ -5,6 +5,7 @@ const myDB = require('./connection');
 const fccTesting = require('./freeCodeCamp/fcctesting.js');
 const session = require('express-session');
 const passport = require('passport');
+const bcrypt = require('bcrypt')
 const LocalStrategy = require('passport-local')
 const ObjectID = require('mongodb').ObjectID
 
@@ -33,7 +34,7 @@ myDB(async client => {
       console.log(`User ${username} attempted to log in.`)
       if (err) { return done(err) }
       if (!user) { return done(null, false) }
-      if (password !== user.password) { return done(null, false) }
+      if (!bcrypt.compareSync(password, user.password)) { return done(null, false) }
       return done(null, user)
     })
   }))
@@ -48,7 +49,7 @@ myDB(async client => {
   app.route('/')
     .get((req, res) => {
       res.render('pug', {
-        title: 'Home Page',
+        title: 'Home Profile',
         message: 'Please login',
         showLogin: true,
         showRegistration: true
@@ -57,6 +58,7 @@ myDB(async client => {
 
   app.route('/register')
     .post((req, res, next) => {
+      const hash = bcrypt.hashSync(req.body.password, 12)
       myDatabase.findOne({ username: req.body.username }, (error, user) => {
         if (error) {
           next(error)
@@ -65,7 +67,7 @@ myDB(async client => {
         } else {
           myDatabase.insertOne({
             username: req.body.username,
-            password: req.body.password
+            password: hash
           }, (error, doc) => {
             if (error) {
               res.redirect('/')
