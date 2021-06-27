@@ -7,6 +7,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local')
 const ObjectID = require('mongodb').ObjectID
+const ensureAuthenticated = require('./middleware/ensureAuthenticated')
 
 const app = express();
 app.set('view engine', 'pug');
@@ -52,8 +53,8 @@ myDB(async client => {
     res.redirect('/profile')
   })   
   
-  app.route('/profile').get((req, res) => {
-    res.render('pug/profile')
+  app.route('/profile').get(ensureAuthenticated, (req, res) => {
+    res.render(process.cwd() + '/views/pug/profile')
   })
 
   passport.serializeUser((user, done) => {
