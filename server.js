@@ -7,7 +7,6 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local')
 const ObjectID = require('mongodb').ObjectID
-const ensureAuthenticated = require('./middleware/ensureAuthenticated')
 
 const app = express();
 app.set('view engine', 'pug');
@@ -39,28 +38,51 @@ myDB(async client => {
     })
   }))
 
-  app.route('/').get((req, res) => {
-    res.render('pug', {
-      title: 'Connected to Database',
-      message: 'Please login',
-      showLogin: true
+  const ensureAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
+      return next()
+    }
+    res.redirect('/')
+  }
+
+  app.route('/')
+    .get((req, res) => {
+      res.render('pug', {
+        title: 'Connected to Database',
+        message: 'Please login',
+        showLogin: true
+      })
+    })
+
+  app.route('/login')
+    .post(passport.authenticate('local', {
+      failureRedirect: '/'
+    }), (req, res) => {
+      res.redirect('/profile')
+    })
+
+  app.route('/profile').get(ensureAuthenticated, (req, res) => {
+    res.render(process.cwd() + '/views/pug/profile', {
+      username: req.user.username
     })
   })
 
-  app.route('/login').post(passport.authenticate('local', {
-    failureRedirect: '/'
-  }), (req, res) => {
-    res.redirect('/profile')
-  })   
-  
-  app.route('/profile').get(ensureAuthenticated, (req, res) => {
-    res.render(process.cwd() + '/views/pug/profile')
+  app.route('/logout')
+    .get((req, res) => {
+      req.logout()
+      res.redirect('/')
+    })
+
+  app.use((req, res, next) => {
+    res.status(404)
+      .type('text')
+      .send('Not Found')
   })
 
   passport.serializeUser((user, done) => {
     done(null, user._id)
   })
-  
+
   passport.deserializeUser((id, done) => {
     myDatabase.findOne({ _id: new ObjectID(id) }, (err, doc) => {
       done(null, doc)
