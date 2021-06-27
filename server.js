@@ -89,7 +89,7 @@ myDB(async client => {
 
   app.route('/profile').get(ensureAuthenticated, (req, res) => {
     res.render(process.cwd() + '/views/pug/profile', {
-      title: 'Profile Page',
+      title: 'Profile Home',
       username: req.user.username
     })
   })
