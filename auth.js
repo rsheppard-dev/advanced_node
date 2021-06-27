@@ -3,6 +3,7 @@ const passport = require('passport')
 const bcrypt = require('bcrypt')
 const LocalStrategy = require('passport-local')
 const GitHubStrategy = require('passport-github').Strategy
+const ObjectID = require('mongodb').ObjectID
 
 module.exports = function (app, myDatabase) {
     passport.use(new LocalStrategy((username, password, done) => {
