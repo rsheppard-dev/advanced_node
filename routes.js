@@ -15,7 +15,8 @@ module.exports = function (app, myDataBase) {
                 title: 'Home Profile',
                 message: 'Please login',
                 showLogin: true,
-                showRegistration: true
+                showRegistration: true,
+                showSocailAuth: true
             })
         })
 
@@ -48,6 +49,14 @@ module.exports = function (app, myDataBase) {
         .post(passport.authenticate('local', {
             failureRedirect: '/'
         }), (req, res) => {
+            res.redirect('/profile')
+        })
+
+    app.route('auth/github')
+        .get(passport.authenticate('github'))
+
+    app.route('/auth/github/callback')
+        .get(passport.authenticate('github', { failureRedirect: '/' }), (req, res) => {
             res.redirect('/profile')
         })
 
